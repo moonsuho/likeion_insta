@@ -70,8 +70,18 @@ def post_update_view(request,id):
         post.save()
         return redirect('posts:post-detail', post.id)
     
+@login_required
 def post_delete_view(request,id):
-    return render(request,'posts/post_confirm_delete.html')
+    post=get_object_or_404(Post,id=id)
+    if request.user !=post.writer:
+        return Http404('잘못된 접근입니다')
+    if request.method=='GET':
+        context={'post':post}
+        return render(request,'posts/post_confirm_delete.html')
+    else:
+        post.delete()
+        return redirect('index')
+    
     
 def url_view(request):
     print('url_view()')
